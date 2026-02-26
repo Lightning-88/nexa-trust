@@ -117,7 +117,7 @@ export default function ChatPage() {
             key={m.id}
             className={m.role === "user" ? "text-right" : "text-left"}
           >
-            <p className="inline-block rounded-lg px-3 py-2 bg-muted">
+            <p className="inline-block rounded-lg px-3 py-2 bg-muted whitespace-pre-wrap">
               {m.content}
             </p>
           </div>
