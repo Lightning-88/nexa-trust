@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { auth } from "@/lib/authentication/auth";
 
 export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: request.headers,
   });
 
-  if (!session) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  if (!session)
+    return NextResponse.json(
+      { success: false, message: "unauthenticated" },
+      { status: 403 },
+    );
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard"],
+  matcher: ["/api/ai/:path*"],
 };

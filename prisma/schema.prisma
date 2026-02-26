@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,6 +16,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  chats         Chat[]
 
   @@unique([email])
   @@map("user")
@@ -68,4 +68,35 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+
+  @@index([userId])
+  @@map("chats")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  role      Role
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([chatId])
+  @@map("messages")
+}
+
+enum Role {
+  user
+  assistant
+  system
 }
