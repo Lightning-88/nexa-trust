@@ -128,6 +128,7 @@ export default function ChatPage() {
 
       <form className="sticky p-4" onSubmit={handleSubmitPrompt}>
         <PromptInput
+          onLoading={loading}
           onChange={(e) => setPrompt(e.target.value)}
           value={prompt}
         />
