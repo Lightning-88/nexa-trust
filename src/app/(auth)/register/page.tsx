@@ -46,6 +46,7 @@ export default function RegisterPage() {
       name,
       email,
       password,
+      callbackURL: "/login",
     });
 
     if (error) alert(error.message);

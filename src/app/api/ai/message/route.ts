@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           messages: contents,
+          max_tokens: 200,
         }),
       },
     );
