@@ -1,6 +1,7 @@
 "use client";
 
 import { PromptInput } from "@/components/main/prompt-input";
+import { Markdown } from "@/components/ui/markdown";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -115,11 +116,9 @@ export default function ChatPage() {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={m.role === "user" ? "text-right" : "text-left"}
+            className={`space-y-4 p-2 max-w-fit ${m.role === "user" && "ml-auto rounded-md bg-accent"}`}
           >
-            <p className="inline-block rounded-lg px-3 py-2 bg-muted whitespace-pre-wrap">
-              {m.content}
-            </p>
+            <Markdown role={m.role} content={m.content} />
           </div>
         ))}
 

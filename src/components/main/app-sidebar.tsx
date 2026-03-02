@@ -9,17 +9,24 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
 } from "@/components/ui/sidebar";
 
 import { Plus, MessageSquare } from "lucide-react";
 import { Button } from "../ui/button";
 import { NavUser } from "./nav-user";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type ChatData = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  title: string | null;
+};
 
 export function AppSidebar({
   user,
-  chats,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user: {
@@ -31,14 +38,27 @@ export function AppSidebar({
     name: string;
     image?: string | null | undefined;
   };
-  chats: {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    title: string | null;
-  }[];
 }) {
+  const [chats, setChats] = useState<ChatData[]>([]);
+
+  useEffect(() => {
+    const getListChats = async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/ai/chat`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const { data } = await response.json();
+      setChats(data.chat);
+    };
+
+    getListChats();
+  }, []);
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="border-b h-16 justify-center">

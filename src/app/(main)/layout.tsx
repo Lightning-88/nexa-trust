@@ -2,7 +2,6 @@ import { AppHeader } from "@/components/main/app-header";
 import { AppSidebar } from "@/components/main/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/authentication/auth";
-import { db } from "@/lib/database/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -17,15 +16,6 @@ export default async function DashboardLayout({
 
   if (!session) redirect("/login");
 
-  const chats = await db.chat.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
   return (
     <SidebarProvider
       style={
@@ -38,7 +28,6 @@ export default async function DashboardLayout({
       <AppSidebar
         variant="sidebar"
         className="border-r p-0"
-        chats={chats}
         user={session.user}
       />
 

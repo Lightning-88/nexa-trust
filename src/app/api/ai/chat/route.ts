@@ -54,6 +54,9 @@ export async function GET(request: NextRequest) {
     where: {
       userId: session.user.id,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return NextResponse.json({ success: true, data: { chat } }, { status: 200 });
