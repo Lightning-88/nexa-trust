@@ -3,9 +3,11 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "../db/prisma";
 import bcrypt from "bcrypt";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import "dotenv/config";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_BASE_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
   database: prismaAdapter(db, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,

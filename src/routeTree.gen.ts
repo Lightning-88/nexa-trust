@@ -9,12 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as mainRouteRouteImport } from './routes/(main)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as mainDashboardIndexRouteImport } from './routes/(main)/dashboard/index'
 import { Route as authRegisterIndexRouteImport } from './routes/(auth)/register/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as mainCChatIdRouteImport } from './routes/(main)/c/$chatId'
+import { Route as ApiAiChatIndexRouteImport } from './routes/api/ai/chat/index'
 
+const mainRouteRoute = mainRouteRouteImport.update({
+  id: '/(main)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
@@ -23,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const mainDashboardIndexRoute = mainDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => mainRouteRoute,
 } as any)
 const authRegisterIndexRoute = authRegisterIndexRouteImport.update({
   id: '/register/',
@@ -39,49 +52,96 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const mainCChatIdRoute = mainCChatIdRouteImport.update({
+  id: '/c/$chatId',
+  path: '/c/$chatId',
+  getParentRoute: () => mainRouteRoute,
+} as any)
+const ApiAiChatIndexRoute = ApiAiChatIndexRouteImport.update({
+  id: '/api/ai/chat/',
+  path: '/api/ai/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/login/': typeof authLoginIndexRoute
   '/register/': typeof authRegisterIndexRoute
+  '/dashboard/': typeof mainDashboardIndexRoute
+  '/api/ai/chat/': typeof ApiAiChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/login': typeof authLoginIndexRoute
   '/register': typeof authRegisterIndexRoute
+  '/dashboard': typeof mainDashboardIndexRoute
+  '/api/ai/chat': typeof ApiAiChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
+  '/(main)': typeof mainRouteRouteWithChildren
+  '/(main)/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/register/': typeof authRegisterIndexRoute
+  '/(main)/dashboard/': typeof mainDashboardIndexRoute
+  '/api/ai/chat/': typeof ApiAiChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/auth/$' | '/login/' | '/register/'
+  fullPaths:
+    | '/'
+    | '/c/$chatId'
+    | '/api/auth/$'
+    | '/login/'
+    | '/register/'
+    | '/dashboard/'
+    | '/api/ai/chat/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/auth/$' | '/login' | '/register'
+  to:
+    | '/'
+    | '/c/$chatId'
+    | '/api/auth/$'
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/api/ai/chat'
   id:
     | '__root__'
     | '/'
     | '/(auth)'
+    | '/(main)'
+    | '/(main)/c/$chatId'
     | '/api/auth/$'
     | '/(auth)/login/'
     | '/(auth)/register/'
+    | '/(main)/dashboard/'
+    | '/api/ai/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authRouteRoute: typeof authRouteRouteWithChildren
+  mainRouteRoute: typeof mainRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiAiChatIndexRoute: typeof ApiAiChatIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(main)': {
+      id: '/(main)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof mainRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)': {
       id: '/(auth)'
       path: ''
@@ -95,6 +155,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(main)/dashboard/': {
+      id: '/(main)/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof mainDashboardIndexRouteImport
+      parentRoute: typeof mainRouteRoute
     }
     '/(auth)/register/': {
       id: '/(auth)/register/'
@@ -117,6 +184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(main)/c/$chatId': {
+      id: '/(main)/c/$chatId'
+      path: '/c/$chatId'
+      fullPath: '/c/$chatId'
+      preLoaderRoute: typeof mainCChatIdRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/api/ai/chat/': {
+      id: '/api/ai/chat/'
+      path: '/api/ai/chat'
+      fullPath: '/api/ai/chat/'
+      preLoaderRoute: typeof ApiAiChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -134,10 +215,26 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
+interface mainRouteRouteChildren {
+  mainCChatIdRoute: typeof mainCChatIdRoute
+  mainDashboardIndexRoute: typeof mainDashboardIndexRoute
+}
+
+const mainRouteRouteChildren: mainRouteRouteChildren = {
+  mainCChatIdRoute: mainCChatIdRoute,
+  mainDashboardIndexRoute: mainDashboardIndexRoute,
+}
+
+const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
+  mainRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authRouteRoute: authRouteRouteWithChildren,
+  mainRouteRoute: mainRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiAiChatIndexRoute: ApiAiChatIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
