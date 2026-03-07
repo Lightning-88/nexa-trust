@@ -27,11 +27,11 @@ function RouteComponent() {
           body: JSON.stringify({ prompt }),
         },
       );
-      const result = await response.json();
+      const { data, success } = await response.json();
 
-      if (!result.success) return alert("gagal");
+      if (!success) return alert("gagal");
 
-      navigate({ to: "/c/$chatId", params: { chatId: result.data.chat.id } });
+      navigate({ to: "/c/$chatId", params: { chatId: data.id } });
     } catch {
       alert("Error");
     } finally {

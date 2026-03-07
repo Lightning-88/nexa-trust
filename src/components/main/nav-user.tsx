@@ -15,6 +15,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth/auth-client";
+import { useNavigate } from "@tanstack/react-router";
 import {
   BellIcon,
   CreditCardIcon,
@@ -22,7 +23,6 @@ import {
   MoreVerticalIcon,
   User2Icon,
 } from "lucide-react";
-import { redirect } from "@tanstack/react-router";
 
 export function NavUser({
   user,
@@ -38,15 +38,12 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
 
   async function handleSignOut() {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          redirect({ to: "/login" });
-        },
-      },
-    });
+    const { data } = await authClient.signOut();
+
+    if (data?.success) navigate({ to: "/login" });
   }
 
   return (
