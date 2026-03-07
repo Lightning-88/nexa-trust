@@ -1,6 +1,6 @@
 import { PromptInput } from "@/components/chat/prompt-input";
 import { Markdown } from "@/components/ui/markdown";
-import type { Message } from "@/types/message";
+import type { Message } from "@/types/messages";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
