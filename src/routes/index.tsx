@@ -20,9 +20,9 @@ function MainPage() {
   const session = Route.useLoaderData();
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold text-primary">Nexa Trust</h1>
+    <main className="min-h-screen">
+      <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto shadow-sm sticky top-0 left-0 right-0 backdrop-blur-lg">
+        <h1 className="text-2xl font-bold">Nexa Trust</h1>
 
         <div className="flex gap-3">
           {!session ? (
@@ -49,7 +49,7 @@ function MainPage() {
           Untuk Bisnis Modern
         </h2>
 
-        <p className="text-slate-600 max-w-2xl mb-8 text-lg">
+        <p className="max-w-2xl mb-8 text-lg">
           Nexa Trust membantu Anda membangun komunikasi otomatis yang aman,
           cepat, dan terpercaya dengan teknologi AI.
         </p>
@@ -85,7 +85,7 @@ function MainPage() {
               <CardDescription>Respon cepat & akurat</CardDescription>
             </CardHeader>
 
-            <CardContent className="text-slate-600">
+            <CardContent>
               Sistem AI memahami konteks percakapan untuk hasil terbaik.
             </CardContent>
           </Card>
@@ -98,7 +98,7 @@ function MainPage() {
               <CardDescription>Privasi terjamin</CardDescription>
             </CardHeader>
 
-            <CardContent className="text-slate-600">
+            <CardContent>
               Data Anda dilindungi dengan teknologi keamanan modern.
             </CardContent>
           </Card>
@@ -111,22 +111,20 @@ function MainPage() {
               <CardDescription>Tanpa ribet</CardDescription>
             </CardHeader>
 
-            <CardContent className="text-slate-600">
+            <CardContent>
               Interface simpel dan ramah pengguna, cocok untuk semua level.
             </CardContent>
           </Card>
         </div>
       </section>
 
-      <section className="bg-slate-100 py-12 px-6">
+      <section className="py-12 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <h3 className="text-3xl md:text-4xl font-bold">
             Mulai Gunakan Nexa Trust Hari Ini
           </h3>
 
-          <p className="text-slate-600">
-            Tingkatkan layanan pelanggan dengan AI chatbot terpercaya.
-          </p>
+          <p>Tingkatkan layanan pelanggan dengan AI chatbot terpercaya.</p>
 
           {!session && (
             <Button size="lg" asChild>

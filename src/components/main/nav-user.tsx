@@ -43,7 +43,7 @@ export function NavUser({
   async function handleSignOut() {
     const { data } = await authClient.signOut();
 
-    if (data?.success) navigate({ to: "/login" });
+    if (data?.success) navigate({ to: "/login", replace: true });
   }
 
   return (
