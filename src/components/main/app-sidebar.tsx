@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Sidebar,
   SidebarContent,
@@ -14,8 +12,8 @@ import {
 import { Plus, MessageSquare } from "lucide-react";
 import { Button } from "../ui/button";
 import { NavUser } from "./nav-user";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 
 type ChatData = {
   id: string;
@@ -44,7 +42,7 @@ export function AppSidebar({
   useEffect(() => {
     const getListChats = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/api/ai/chat`,
+        `${import.meta.env.VITE_APP_URL}/api/ai/chat`,
         {
           method: "GET",
           headers: {
@@ -63,7 +61,7 @@ export function AppSidebar({
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="border-b h-16 justify-center">
         <Button asChild>
-          <Link href="/dashboard">
+          <Link to="/dashboard">
             <Plus size={16} />
             New Chat
           </Link>
@@ -77,7 +75,7 @@ export function AppSidebar({
           </p>
 
           <SidebarMenu>
-            {!chats || chats.length === 0 ? (
+            {chats.length === 0 ? (
               <SidebarMenuItem>
                 <SidebarMenuButton>
                   {"You don't have any chats"}
@@ -87,7 +85,7 @@ export function AppSidebar({
               chats.map((chat) => (
                 <SidebarMenuItem key={chat.id}>
                   <SidebarMenuButton asChild>
-                    <Link href={`/c/${chat.id}`}>
+                    <Link to="/c/$chatId" params={{ chatId: chat.id }}>
                       <MessageSquare size={16} />
                       <span>{chat.title}</span>
                     </Link>

@@ -1,5 +1,3 @@
-"use client";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,7 +14,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/authentication/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
+import { useNavigate } from "@tanstack/react-router";
 import {
   BellIcon,
   CreditCardIcon,
@@ -24,7 +23,6 @@ import {
   MoreVerticalIcon,
   User2Icon,
 } from "lucide-react";
-import { redirect } from "next/navigation";
 
 export function NavUser({
   user,
@@ -40,15 +38,12 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
 
   async function handleSignOut() {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          redirect("/");
-        },
-      },
-    });
+    const { data } = await authClient.signOut();
+
+    if (data?.success) navigate({ to: "/login" });
   }
 
   return (
