@@ -12,16 +12,9 @@ import {
 import { Plus, MessageSquare } from "lucide-react";
 import { Button } from "../ui/button";
 import { NavUser } from "./nav-user";
-import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-
-type ChatData = {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: string;
-  title: string | null;
-};
+import { useQuery } from "@tanstack/react-query";
+import { getChats } from "@/feature/chat/functions";
 
 export function AppSidebar({
   user,
@@ -37,25 +30,10 @@ export function AppSidebar({
     image?: string | null | undefined;
   };
 }) {
-  const [chats, setChats] = useState<ChatData[]>([]);
-
-  useEffect(() => {
-    const getListChats = async () => {
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_URL}/api/ai/chat`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const { data } = await response.json();
-      setChats(data.chat);
-    };
-
-    getListChats();
-  }, []);
+  const { data: chats, isPending } = useQuery({
+    queryKey: ["chats"],
+    queryFn: getChats,
+  });
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -75,7 +53,11 @@ export function AppSidebar({
           </p>
 
           <SidebarMenu>
-            {chats.length === 0 ? (
+            {isPending ? (
+              <SidebarMenuItem>
+                <SidebarMenuButton>Loading...</SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : !chats || chats.length === 0 ? (
               <SidebarMenuItem>
                 <SidebarMenuButton>
                   {"You don't have any chats"}

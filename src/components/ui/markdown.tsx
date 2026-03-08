@@ -2,15 +2,16 @@ import { Children, isValidElement, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import rehypeSanitize from "rehype-sanitize";
 import { Copy, Check, MoreHorizontal } from "lucide-react";
 
 export function Markdown({ content, role }: { content: string; role: string }) {
+  const [copied, handleCopy] = useCopy(content);
+
   return (
     <>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight, rehypeSanitize]}
+        rehypePlugins={[rehypeHighlight]}
         components={{
           code({ className, children, ...props }) {
             const isBlock = Boolean(className);
@@ -42,7 +43,9 @@ export function Markdown({ content, role }: { content: string; role: string }) {
 
       {role === "assistant" && (
         <div className="flex gap-2.5">
-          <Copy size={16} />
+          <button onClick={handleCopy} className="transition">
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+          </button>
           <MoreHorizontal size={16} />
         </div>
       )}
@@ -59,13 +62,7 @@ function CodeBlock({
   language: string;
   className?: string;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
+  const [copied, handleCopy] = useCopy(code);
 
   return (
     <div className="rounded-xl overflow-hidden border my-4">
@@ -101,4 +98,16 @@ function getTextFromChildren(children: React.ReactNode): string {
       return "";
     })
     .join("");
+}
+
+function useCopy(text: string) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return [copied, handleCopy] as const;
 }

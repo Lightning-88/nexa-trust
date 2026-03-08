@@ -1,4 +1,6 @@
 import { PromptInput } from "@/components/chat/prompt-input";
+import { addChats } from "@/feature/chat/functions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -8,35 +10,25 @@ export const Route = createFileRoute("/(main)/dashboard/")({
 
 function RouteComponent() {
   const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate: addChatsFn, isPending } = useMutation({
+    mutationFn: (promptContent: string) => addChats(promptContent),
+    onSuccess: async ({ id }) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["chats"],
+      });
+
+      navigate({ to: "/c/$chatId", params: { chatId: id } });
+    },
+  });
 
   async function handleSubmitPrompt(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!prompt) return;
 
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_URL}/api/ai/chat`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt }),
-        },
-      );
-      const { data, success } = await response.json();
-
-      if (!success) return alert("gagal");
-
-      navigate({ to: "/c/$chatId", params: { chatId: data.id } });
-    } catch {
-      alert("Error");
-    } finally {
-      setLoading(false);
-    }
+    addChatsFn(prompt);
   }
 
   return (
@@ -45,7 +37,7 @@ function RouteComponent() {
       <form className="w-full max-w-xl" onSubmit={handleSubmitPrompt}>
         <PromptInput
           onChange={(e) => setPrompt(e.target.value)}
-          onLoading={loading}
+          onLoading={isPending}
         />
       </form>
     </div>
