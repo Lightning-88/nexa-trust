@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as miscRouteRouteImport } from './routes/(misc)/route'
 import { Route as mainRouteRouteImport } from './routes/(main)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as miscSettingIndexRouteImport } from './routes/(misc)/setting/index'
 import { Route as mainDashboardIndexRouteImport } from './routes/(main)/dashboard/index'
 import { Route as authRegisterIndexRouteImport } from './routes/(auth)/register/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
@@ -21,6 +23,10 @@ import { Route as ApiAiMessageIndexRouteImport } from './routes/api/ai/message/i
 import { Route as ApiAiChatIndexRouteImport } from './routes/api/ai/chat/index'
 import { Route as ApiV1AiMessageIndexRouteImport } from './routes/api/v1/ai/message/index'
 
+const miscRouteRoute = miscRouteRouteImport.update({
+  id: '/(misc)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const mainRouteRoute = mainRouteRouteImport.update({
   id: '/(main)',
   getParentRoute: () => rootRouteImport,
@@ -33,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const miscSettingIndexRoute = miscSettingIndexRouteImport.update({
+  id: '/setting/',
+  path: '/setting/',
+  getParentRoute: () => miscRouteRoute,
 } as any)
 const mainDashboardIndexRoute = mainDashboardIndexRouteImport.update({
   id: '/dashboard/',
@@ -82,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/login/': typeof authLoginIndexRoute
   '/register/': typeof authRegisterIndexRoute
   '/dashboard/': typeof mainDashboardIndexRoute
+  '/setting/': typeof miscSettingIndexRoute
   '/api/ai/chat/': typeof ApiAiChatIndexRoute
   '/api/ai/message/': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message/': typeof ApiV1AiMessageIndexRoute
@@ -93,6 +105,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginIndexRoute
   '/register': typeof authRegisterIndexRoute
   '/dashboard': typeof mainDashboardIndexRoute
+  '/setting': typeof miscSettingIndexRoute
   '/api/ai/chat': typeof ApiAiChatIndexRoute
   '/api/ai/message': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message': typeof ApiV1AiMessageIndexRoute
@@ -102,11 +115,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
   '/(main)': typeof mainRouteRouteWithChildren
+  '/(misc)': typeof miscRouteRouteWithChildren
   '/(main)/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/register/': typeof authRegisterIndexRoute
   '/(main)/dashboard/': typeof mainDashboardIndexRoute
+  '/(misc)/setting/': typeof miscSettingIndexRoute
   '/api/ai/chat/': typeof ApiAiChatIndexRoute
   '/api/ai/message/': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message/': typeof ApiV1AiMessageIndexRoute
@@ -120,6 +135,7 @@ export interface FileRouteTypes {
     | '/login/'
     | '/register/'
     | '/dashboard/'
+    | '/setting/'
     | '/api/ai/chat/'
     | '/api/ai/message/'
     | '/api/v1/ai/message/'
@@ -131,6 +147,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/dashboard'
+    | '/setting'
     | '/api/ai/chat'
     | '/api/ai/message'
     | '/api/v1/ai/message'
@@ -139,11 +156,13 @@ export interface FileRouteTypes {
     | '/'
     | '/(auth)'
     | '/(main)'
+    | '/(misc)'
     | '/(main)/c/$chatId'
     | '/api/auth/$'
     | '/(auth)/login/'
     | '/(auth)/register/'
     | '/(main)/dashboard/'
+    | '/(misc)/setting/'
     | '/api/ai/chat/'
     | '/api/ai/message/'
     | '/api/v1/ai/message/'
@@ -153,6 +172,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authRouteRoute: typeof authRouteRouteWithChildren
   mainRouteRoute: typeof mainRouteRouteWithChildren
+  miscRouteRoute: typeof miscRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAiChatIndexRoute: typeof ApiAiChatIndexRoute
   ApiAiMessageIndexRoute: typeof ApiAiMessageIndexRoute
@@ -161,6 +181,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(misc)': {
+      id: '/(misc)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof miscRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(main)': {
       id: '/(main)'
       path: ''
@@ -181,6 +208,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(misc)/setting/': {
+      id: '/(misc)/setting/'
+      path: '/setting'
+      fullPath: '/setting/'
+      preLoaderRoute: typeof miscSettingIndexRouteImport
+      parentRoute: typeof miscRouteRoute
     }
     '/(main)/dashboard/': {
       id: '/(main)/dashboard/'
@@ -269,10 +303,23 @@ const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
   mainRouteRouteChildren,
 )
 
+interface miscRouteRouteChildren {
+  miscSettingIndexRoute: typeof miscSettingIndexRoute
+}
+
+const miscRouteRouteChildren: miscRouteRouteChildren = {
+  miscSettingIndexRoute: miscSettingIndexRoute,
+}
+
+const miscRouteRouteWithChildren = miscRouteRoute._addFileChildren(
+  miscRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authRouteRoute: authRouteRouteWithChildren,
   mainRouteRoute: mainRouteRouteWithChildren,
+  miscRouteRoute: miscRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAiChatIndexRoute: ApiAiChatIndexRoute,
   ApiAiMessageIndexRoute: ApiAiMessageIndexRoute,

@@ -12,16 +12,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth/auth-client";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   BellIcon,
   CreditCardIcon,
   LogOutIcon,
   MoreVerticalIcon,
-  User2Icon,
+  SettingsIcon,
 } from "lucide-react";
 
 export function NavUser({
@@ -37,8 +36,8 @@ export function NavUser({
     image?: string | null | undefined;
   };
 }) {
-  const { isMobile } = useSidebar();
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function handleSignOut() {
     const { data } = await authClient.signOut();
@@ -70,7 +69,6 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
@@ -90,9 +88,14 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <User2Icon />
-                Account
+              <DropdownMenuItem asChild>
+                <Link
+                  to="/setting"
+                  search={{ page: "general", back: location.pathname }}
+                >
+                  <SettingsIcon />
+                  Setting
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <CreditCardIcon />

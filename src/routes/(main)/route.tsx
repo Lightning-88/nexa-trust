@@ -28,9 +28,9 @@ function MainLayout() {
     >
       <AppSidebar variant="sidebar" user={user} className="border-r p-0" />
 
-      <div className="w-full h-dvh flex flex-col">
+      <div className="w-full h-dvh flex flex-col overflow-hidden">
         <AppHeader className="sticky top-0" />
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 min-h-0">
           <Outlet />
         </div>
       </div>

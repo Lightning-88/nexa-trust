@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { Copy, Check, MoreHorizontal } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 export function Markdown({ content, role }: { content: string; role: string }) {
   const [copied, handleCopy] = useCopy(content);
@@ -33,6 +34,7 @@ export function Markdown({ content, role }: { content: string; role: string }) {
                 code={codeString}
                 language={language}
                 className={className}
+                role={role}
               />
             );
           },
@@ -43,10 +45,20 @@ export function Markdown({ content, role }: { content: string; role: string }) {
 
       {role === "assistant" && (
         <div className="flex gap-2.5">
-          <button onClick={handleCopy} className="transition">
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-          </button>
-          <MoreHorizontal size={16} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button onClick={handleCopy} className="transition">
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{copied ? "Copied" : "Copy"}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <MoreHorizontal size={16} />
+            </TooltipTrigger>
+            <TooltipContent>More</TooltipContent>
+          </Tooltip>
         </div>
       )}
     </>
@@ -57,15 +69,19 @@ function CodeBlock({
   code,
   language,
   className,
+  role,
 }: {
   code: string;
   language: string;
   className?: string;
+  role: string;
 }) {
   const [copied, handleCopy] = useCopy(code);
 
   return (
-    <div className="rounded-xl overflow-hidden border my-4">
+    <div
+      className={`rounded-xl overflow-hidden my-4 ${role === "assistant" && "border"}`}
+    >
       <div className="flex items-center justify-between px-4 py-2 text-xs">
         <span className="uppercase tracking-wide">{language}</span>
 
