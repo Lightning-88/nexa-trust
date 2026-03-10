@@ -14,7 +14,8 @@ import { Button } from "../ui/button";
 import { NavUser } from "./nav-user";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getChats } from "@/feature/chat/functions";
+import { useServerFn } from "@tanstack/react-start";
+import { getChatsServer } from "@/feature/chat/functions";
 
 export function AppSidebar({
   user,
@@ -30,6 +31,8 @@ export function AppSidebar({
     image?: string | null | undefined;
   };
 }) {
+  const getChats = useServerFn(getChatsServer);
+
   const { data: chats, isPending } = useQuery({
     queryKey: ["chats"],
     queryFn: getChats,

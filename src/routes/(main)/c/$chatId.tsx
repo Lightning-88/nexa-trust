@@ -1,7 +1,13 @@
 import { PromptInput } from "@/components/chat/prompt-input";
 import { Markdown } from "@/components/ui/markdown";
+import {
+  addMessagesServer,
+  getMessagesServer,
+} from "@/feature/message/functions";
 import type { Message } from "@/types/messages";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/(main)/c/$chatId")({
@@ -10,105 +16,67 @@ export const Route = createFileRoute("/(main)/c/$chatId")({
 
 function ChatPage() {
   const { chatId } = Route.useParams();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [isNewChat, setIsNewChat] = useState(false);
-  const hasRun = useRef(false);
+  const getMessages = useServerFn(getMessagesServer);
+  const addMessages = useServerFn(addMessagesServer);
+  const queryClient = useQueryClient();
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const getChat = async () => {
-      const response = await fetch(`/api/ai/message?chatId=${chatId}`);
-      const { data } = await response.json();
+  const { data: messages } = useQuery({
+    queryKey: ["messages", chatId],
+    queryFn: () => getMessages({ data: { chatId } }),
+  });
 
-      setMessages(data.message);
+  const { mutate: addMessagesFn, isPending } = useMutation({
+    mutationFn: ({ content, isFirst }: { content: string; isFirst: boolean }) =>
+      addMessages({ data: { chatId, content, isFirst } }),
+    onMutate: async (newMessage) => {
+      await queryClient.cancelQueries({ queryKey: ["messages", chatId] });
 
-      if (data.message.length === 1 && data.message[0].role === "user") {
-        setIsNewChat(true);
-      }
-    };
+      const previousMessages = queryClient.getQueryData([
+        "messages",
+        chatId,
+      ]) as Message[];
 
-    getChat();
-  }, [chatId]);
+      queryClient.setQueryData(["messages", chatId], (old: Message[]) => [
+        ...old,
+        {
+          id: String(Math.floor(Math.random() * 10000000)),
+          content: newMessage.content,
+          role: "user",
+          createdAt: new Date(),
+        },
+      ]);
 
-  useEffect(() => {
-    if (hasRun.current) return;
-    if (!isNewChat) return;
+      setPrompt("");
 
-    hasRun.current = true;
-
-    const first = messages[0];
-    if (!first.id) return;
-
-    const runAi = async () => {
-      setLoading(true);
-
-      const response = await fetch("/api/ai/message", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chatId,
-          content: first.content,
-          provider: "bytez",
-          isFirst: hasRun.current,
-        }),
-      });
-
-      const { data } = await response.json();
-
-      setMessages((prev) => [...prev, data.reply]);
-      setLoading(false);
-
-      setIsNewChat(false);
-    };
-
-    runAi();
-  }, [isNewChat, chatId, messages]);
+      return { previousMessages };
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+    },
+  });
 
   async function handleSubmitPrompt(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!prompt.trim() || loading) return;
-
-    const text = prompt;
-    setPrompt("");
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: String(Math.floor(Math.random() * 10000000)),
-        chatId: chatId,
-        role: "user",
-        content: text,
-        createdAt: new Date(),
-      },
-    ]);
-
-    try {
-      setLoading(true);
-      const response = await fetch("/api/ai/message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chatId,
-          content: text,
-          provider: "bytez",
-        }),
-      });
-
-      const { data } = await response.json();
-      setMessages((prev) => [...prev, data.reply]);
-    } finally {
-      setLoading(false);
-    }
+    addMessagesFn({
+      content: prompt,
+      isFirst: messages?.length === 1 ? true : false,
+    });
   }
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    element.scrollTop = element.scrollHeight;
+  }, [messages?.length]);
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-auto p-4 space-y-4">
-        {messages.map((m) => (
+      <div className="flex-1 overflow-auto p-4 space-y-4" ref={containerRef}>
+        {messages?.map((m) => (
           <div
             key={m.id}
             className={`space-y-4 p-2 max-w-fit ${m.role === "user" && "ml-auto rounded-md bg-accent"}`}
@@ -117,12 +85,14 @@ function ChatPage() {
           </div>
         ))}
 
-        {loading && <p className="text-sm text-muted-foreground">typing...</p>}
+        {isPending && (
+          <p className="text-sm text-muted-foreground">typing...</p>
+        )}
       </div>
 
       <form className="sticky p-4" onSubmit={handleSubmitPrompt}>
         <PromptInput
-          onLoading={loading}
+          onLoading={isPending}
           onChange={(e) => setPrompt(e.target.value)}
           value={prompt}
         />

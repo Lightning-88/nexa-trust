@@ -27,26 +27,10 @@ export const Route = createFileRoute("/(misc)/setting/")({
 });
 
 const menuItems = [
-  {
-    id: "general",
-    label: "General",
-    icon: SettingsIcon,
-  },
-  {
-    id: "personalization",
-    label: "Personalization",
-    icon: Leaf,
-  },
-  {
-    id: "security",
-    label: "Security",
-    icon: LockKeyholeIcon,
-  },
-  {
-    id: "account",
-    label: "Account",
-    icon: UserCircle,
-  },
+  { id: "general", label: "General", icon: SettingsIcon },
+  { id: "personalization", label: "Personalization", icon: Leaf },
+  { id: "security", label: "Security", icon: LockKeyholeIcon },
+  { id: "account", label: "Account", icon: UserCircle },
 ];
 
 function isSafePath(path: string | undefined): path is string {
@@ -67,42 +51,69 @@ function SettingPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-dvh w-full bg-muted/40 p-4">
-      <Card className="w-full max-w-4xl shadow-lg rounded-xl overflow-hidden">
-        <CardHeader className="flex flex-row items-center gap-2 border-b">
+    <div className="flex items-center justify-center min-h-dvh w-full bg-muted/40 p-4 md:p-8">
+      <Card className="w-full max-w-4xl shadow-lg rounded-xl gap-0 py-0 overflow-hidden">
+        <div className="flex flex-row items-center gap-2 p-2 border-b">
           <Button size="icon-lg" variant="ghost" onClick={handleBack}>
             <ArrowLeftIcon />
           </Button>
 
           <CardTitle className="text-lg font-semibold">Settings</CardTitle>
-        </CardHeader>
+        </div>
 
-        <div className="flex min-h-[420px]">
-          <div className="w-60 border-r bg-muted/20 p-2 flex flex-col gap-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = active === item.id;
+        <div className="flex flex-col md:flex-row min-h-[420px]">
+          <div className="border-b md:border-b-0 md:border-r bg-muted/20 md:w-60">
+            <div className="flex overflow-x-auto p-2 gap-1 md:hidden">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = active === item.id;
 
-              return (
-                <Button
-                  key={item.id}
-                  variant="ghost"
-                  onClick={() =>
-                    navigate({ to: ".", search: { page: item.id, back } })
-                  }
-                  className={cn(
-                    "justify-start gap-2 font-medium",
-                    isActive && "bg-muted",
-                  )}
-                >
-                  <Icon size={18} />
-                  {item.label}
-                </Button>
-              );
-            })}
+                return (
+                  <Button
+                    key={item.id}
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      navigate({ to: ".", search: { page: item.id, back } })
+                    }
+                    className={cn(
+                      "flex items-center gap-2 whitespace-nowrap",
+                      isActive && "bg-muted",
+                    )}
+                  >
+                    <Icon size={16} />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <div className="hidden md:flex flex-col p-2 gap-1">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = active === item.id;
+
+                return (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    onClick={() =>
+                      navigate({ to: ".", search: { page: item.id, back } })
+                    }
+                    className={cn(
+                      "justify-start gap-2 font-medium",
+                      isActive && "bg-muted",
+                    )}
+                  >
+                    <Icon size={18} />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex-1 py-4 px-6">
+          <div className="flex-1 py-4 px-4">
             <CardContent className="p-0">
               {active === "general" && (
                 <div className="space-y-2">

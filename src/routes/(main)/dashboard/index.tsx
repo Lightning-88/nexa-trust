@@ -1,20 +1,23 @@
 import { PromptInput } from "@/components/chat/prompt-input";
-import { addChats } from "@/feature/chat/functions";
+import { addChatsServer } from "@/feature/chat/functions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 export const Route = createFileRoute("/(main)/dashboard/")({
-  component: RouteComponent,
+  component: DashboardPage,
 });
 
-function RouteComponent() {
+function DashboardPage() {
   const [prompt, setPrompt] = useState("");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const addChats = useServerFn(addChatsServer);
 
   const { mutate: addChatsFn, isPending } = useMutation({
-    mutationFn: (promptContent: string) => addChats(promptContent),
+    mutationFn: (promptContent: string) =>
+      addChats({ data: { propmt: promptContent } }),
     onSuccess: async ({ id }) => {
       await queryClient.invalidateQueries({
         queryKey: ["chats"],

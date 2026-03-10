@@ -1,4 +1,8 @@
 import type { ChatData } from "@/types/chats";
+import { createServerFn } from "@tanstack/react-start";
+import { authMiddleware } from "../auth/functions";
+import { db } from "@/lib/db/prisma";
+import z from "zod";
 
 export async function getChats() {
   const response = await fetch(`${import.meta.env.VITE_APP_URL}/api/ai/chat`, {
@@ -24,3 +28,25 @@ export async function addChats(prompt: string) {
 
   return data as ChatData;
 }
+
+export const getChatsServer = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context: { userId } }) => {
+    return await db.chat.findMany({
+      where: {
+        userId,
+      },
+    });
+  });
+
+export const addChatsServer = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ propmt: z.string() }))
+  .middleware([authMiddleware])
+  .handler(async ({ data: { propmt }, context: { userId } }) => {
+    return await db.chat.create({
+      data: {
+        title: propmt,
+        userId,
+      },
+    });
+  });
