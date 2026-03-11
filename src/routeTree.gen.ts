@@ -20,7 +20,6 @@ import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as mainCChatIdRouteImport } from './routes/(main)/c/$chatId'
 import { Route as ApiAiMessageIndexRouteImport } from './routes/api/ai/message/index'
-import { Route as ApiAiChatIndexRouteImport } from './routes/api/ai/chat/index'
 import { Route as ApiV1AiMessageIndexRouteImport } from './routes/api/v1/ai/message/index'
 
 const miscRouteRoute = miscRouteRouteImport.update({
@@ -75,11 +74,6 @@ const ApiAiMessageIndexRoute = ApiAiMessageIndexRouteImport.update({
   path: '/api/ai/message/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAiChatIndexRoute = ApiAiChatIndexRouteImport.update({
-  id: '/api/ai/chat/',
-  path: '/api/ai/chat/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiV1AiMessageIndexRoute = ApiV1AiMessageIndexRouteImport.update({
   id: '/api/v1/ai/message/',
   path: '/api/v1/ai/message/',
@@ -94,7 +88,6 @@ export interface FileRoutesByFullPath {
   '/register/': typeof authRegisterIndexRoute
   '/dashboard/': typeof mainDashboardIndexRoute
   '/setting/': typeof miscSettingIndexRoute
-  '/api/ai/chat/': typeof ApiAiChatIndexRoute
   '/api/ai/message/': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message/': typeof ApiV1AiMessageIndexRoute
 }
@@ -106,7 +99,6 @@ export interface FileRoutesByTo {
   '/register': typeof authRegisterIndexRoute
   '/dashboard': typeof mainDashboardIndexRoute
   '/setting': typeof miscSettingIndexRoute
-  '/api/ai/chat': typeof ApiAiChatIndexRoute
   '/api/ai/message': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message': typeof ApiV1AiMessageIndexRoute
 }
@@ -122,7 +114,6 @@ export interface FileRoutesById {
   '/(auth)/register/': typeof authRegisterIndexRoute
   '/(main)/dashboard/': typeof mainDashboardIndexRoute
   '/(misc)/setting/': typeof miscSettingIndexRoute
-  '/api/ai/chat/': typeof ApiAiChatIndexRoute
   '/api/ai/message/': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message/': typeof ApiV1AiMessageIndexRoute
 }
@@ -136,7 +127,6 @@ export interface FileRouteTypes {
     | '/register/'
     | '/dashboard/'
     | '/setting/'
-    | '/api/ai/chat/'
     | '/api/ai/message/'
     | '/api/v1/ai/message/'
   fileRoutesByTo: FileRoutesByTo
@@ -148,7 +138,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard'
     | '/setting'
-    | '/api/ai/chat'
     | '/api/ai/message'
     | '/api/v1/ai/message'
   id:
@@ -163,7 +152,6 @@ export interface FileRouteTypes {
     | '/(auth)/register/'
     | '/(main)/dashboard/'
     | '/(misc)/setting/'
-    | '/api/ai/chat/'
     | '/api/ai/message/'
     | '/api/v1/ai/message/'
   fileRoutesById: FileRoutesById
@@ -174,7 +162,6 @@ export interface RootRouteChildren {
   mainRouteRoute: typeof mainRouteRouteWithChildren
   miscRouteRoute: typeof miscRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiAiChatIndexRoute: typeof ApiAiChatIndexRoute
   ApiAiMessageIndexRoute: typeof ApiAiMessageIndexRoute
   ApiV1AiMessageIndexRoute: typeof ApiV1AiMessageIndexRoute
 }
@@ -258,13 +245,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiMessageIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ai/chat/': {
-      id: '/api/ai/chat/'
-      path: '/api/ai/chat'
-      fullPath: '/api/ai/chat/'
-      preLoaderRoute: typeof ApiAiChatIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/v1/ai/message/': {
       id: '/api/v1/ai/message/'
       path: '/api/v1/ai/message'
@@ -321,7 +301,6 @@ const rootRouteChildren: RootRouteChildren = {
   mainRouteRoute: mainRouteRouteWithChildren,
   miscRouteRoute: miscRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiAiChatIndexRoute: ApiAiChatIndexRoute,
   ApiAiMessageIndexRoute: ApiAiMessageIndexRoute,
   ApiV1AiMessageIndexRoute: ApiV1AiMessageIndexRoute,
 }

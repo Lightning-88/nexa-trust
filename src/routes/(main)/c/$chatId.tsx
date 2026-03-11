@@ -1,13 +1,11 @@
 import { PromptInput } from "@/components/chat/prompt-input";
 import { Markdown } from "@/components/ui/markdown";
-import {
-  addMessagesServer,
-  getMessagesServer,
-} from "@/feature/message/functions";
+import { getMessagesServer } from "@/feature/message/functions";
 import type { Message } from "@/types/messages";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { LoaderPinwheel } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export const Route = createFileRoute("/(main)/c/$chatId")({
@@ -17,53 +15,80 @@ export const Route = createFileRoute("/(main)/c/$chatId")({
 function ChatPage() {
   const { chatId } = Route.useParams();
   const [prompt, setPrompt] = useState("");
+  const [streamingMessage, setStreamingMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const getMessages = useServerFn(getMessagesServer);
-  const addMessages = useServerFn(addMessagesServer);
   const queryClient = useQueryClient();
   const containerRef = useRef<HTMLDivElement>(null);
+  const runOnce = useRef(false);
 
-  const { data: messages } = useQuery({
+  const { data: messages, isPending } = useQuery({
     queryKey: ["messages", chatId],
     queryFn: () => getMessages({ data: { chatId } }),
   });
 
-  const { mutate: addMessagesFn, isPending } = useMutation({
-    mutationFn: ({ content, isFirst }: { content: string; isFirst: boolean }) =>
-      addMessages({ data: { chatId, content, isFirst } }),
-    onMutate: async (newMessage) => {
-      await queryClient.cancelQueries({ queryKey: ["messages", chatId] });
+  useEffect(() => {
+    if (isPending) return;
 
-      const previousMessages = queryClient.getQueryData([
-        "messages",
-        chatId,
-      ]) as Message[];
+    if (!runOnce.current) {
+      runOnce.current = true;
+      if (messages?.length === 1) {
+        handleSubmitPrompt();
+      }
+    }
+  }, [chatId, messages?.length, isPending]);
 
-      queryClient.setQueryData(["messages", chatId], (old: Message[]) => [
-        ...old,
+  async function handleSubmitPrompt() {
+    const userPrompt = prompt || messages?.[0].content;
+
+    setPrompt("");
+
+    queryClient.setQueryData(["messages", chatId], (old: Message[]) => [
+      ...old,
+      {
+        id: String(Math.floor(Math.random() * 10000000)),
+        content: userPrompt,
+        role: "user",
+        createdAt: new Date(),
+      },
+    ]);
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_URL}/api/ai/message`,
         {
-          id: String(Math.floor(Math.random() * 10000000)),
-          content: newMessage.content,
-          role: "user",
-          createdAt: new Date(),
+          method: "POST",
+          body: JSON.stringify({
+            chatId,
+            content: userPrompt,
+            isFirst: messages?.length === 1,
+          }),
         },
-      ]);
+      );
+      if (!response.body) return;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
 
-      setPrompt("");
+      let text = "";
 
-      return { previousMessages };
-    },
-    onSettled: async () => {
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        text += decoder.decode(value);
+
+        setStreamingMessage(text);
+      }
+
+      setIsLoading(false);
+      setStreamingMessage("");
+
       await queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
-    },
-  });
-
-  async function handleSubmitPrompt(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    addMessagesFn({
-      content: prompt,
-      isFirst: messages?.length === 1 ? true : false,
-    });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   useEffect(() => {
@@ -71,7 +96,7 @@ function ChatPage() {
     if (!element) return;
 
     element.scrollTop = element.scrollHeight;
-  }, [messages?.length]);
+  }, [messages?.length, streamingMessage]);
 
   return (
     <div className="h-full flex flex-col">
@@ -85,14 +110,36 @@ function ChatPage() {
           </div>
         ))}
 
-        {isPending && (
-          <p className="text-sm text-muted-foreground">typing...</p>
+        {isLoading && !streamingMessage && (
+          <div>
+            <LoaderPinwheel className="animate-ping" size={16} />
+          </div>
+        )}
+
+        {streamingMessage && isLoading && (
+          <div className="space-y-4 p-2 max-w-fit">
+            <Markdown
+              role="assistant"
+              content={streamingMessage}
+              onLoading={isLoading}
+            />
+
+            <div>
+              <LoaderPinwheel className="animate-ping" size={16} />
+            </div>
+          </div>
         )}
       </div>
 
-      <form className="sticky p-4" onSubmit={handleSubmitPrompt}>
+      <form
+        className="sticky p-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmitPrompt();
+        }}
+      >
         <PromptInput
-          onLoading={isPending}
+          onLoading={isLoading || streamingMessage ? true : false}
           onChange={(e) => setPrompt(e.target.value)}
           value={prompt}
         />

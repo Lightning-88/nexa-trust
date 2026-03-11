@@ -33,6 +33,9 @@ export const getChatsServer = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context: { userId } }) => {
     return await db.chat.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       where: {
         userId,
       },
@@ -43,10 +46,20 @@ export const addChatsServer = createServerFn({ method: "POST" })
   .inputValidator(z.object({ propmt: z.string() }))
   .middleware([authMiddleware])
   .handler(async ({ data: { propmt }, context: { userId } }) => {
-    return await db.chat.create({
+    const chat = await db.chat.create({
       data: {
         title: propmt,
         userId,
       },
     });
+
+    await db.message.create({
+      data: {
+        content: propmt,
+        role: "user",
+        chatId: chat.id,
+      },
+    });
+
+    return chat;
   });

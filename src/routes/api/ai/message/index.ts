@@ -1,44 +1,31 @@
 import { authMiddleware } from "@/feature/auth/functions";
 import { db } from "@/lib/db/prisma";
+import { env } from "@/lib/utils/env";
 import { createFileRoute } from "@tanstack/react-router";
+import z from "zod";
 
 export const Route = createFileRoute("/api/ai/message/")({
   server: {
     middleware: [authMiddleware],
     handlers: {
-      GET: async ({ request }) => {
-        const searchParams = new URL(request.url).searchParams;
-
-        const chatId = searchParams.get("chatId");
-        if (chatId) {
-          const message = await db.message.findMany({
-            where: {
-              chatId,
-            },
-            orderBy: {
-              createdAt: "asc",
-            },
-          });
-
-          return Response.json(
-            { success: true, data: { message } },
-            { status: 200 },
-          );
-        }
-
-        return Response.json(
-          { success: false, message: "empty" },
-          { status: 400 },
-        );
-      },
       POST: async ({ request }) => {
-        const { chatId, content, provider, isFirst } = await request.json();
+        const body = await request.json();
 
-        if (!chatId || !content || !provider)
+        const validated = z
+          .object({
+            chatId: z.string(),
+            content: z.string(),
+            isFirst: z.boolean(),
+          })
+          .safeParse(body);
+
+        if (validated.error)
           return Response.json(
             { success: false, message: "empty" },
             { status: 400 },
           );
+
+        const { chatId, content, isFirst } = validated.data;
 
         if (!isFirst) {
           await db.message.create({
@@ -64,8 +51,8 @@ export const Route = createFileRoute("/api/ai/message/")({
           content: m.content,
         }));
 
-        const apiKey = process.env.BYTEZ_API_KEY;
-        const responseAi = await fetch(
+        const apiKey = env().BYTEZ_API_KEY;
+        const response = await fetch(
           "https://api.bytez.com/models/v2/openai/gpt-4o",
           {
             method: "POST",
@@ -79,16 +66,16 @@ export const Route = createFileRoute("/api/ai/message/")({
             }),
           },
         );
-        const result = await responseAi.json();
+        const result = await response.json();
 
-        if (!responseAi.ok) {
+        if (!response.ok) {
           return Response.json(
             { success: false, message: "AI error", errors: result },
             { status: 500 },
           );
         }
 
-        const messageAi = await db.message.create({
+        const responseFromAI = await db.message.create({
           data: {
             content: result.output.content,
             chatId,
@@ -97,10 +84,23 @@ export const Route = createFileRoute("/api/ai/message/")({
           },
         });
 
-        return Response.json(
-          { success: true, data: { reply: messageAi } },
-          { status: 201 },
-        );
+        const encoder = new TextEncoder();
+        const words = responseFromAI.content.split(" ");
+
+        const streamText = new ReadableStream({
+          start: async (controller) => {
+            for (const word of words) {
+              controller.enqueue(encoder.encode(word + " "));
+              await new Promise((r) => setTimeout(r, 40));
+            }
+
+            controller.close();
+          },
+        });
+
+        return new Response(streamText, {
+          headers: { "Content-Type": "text/plain" },
+        });
       },
     },
   },

@@ -5,7 +5,15 @@ import rehypeHighlight from "rehype-highlight";
 import { Copy, Check, MoreHorizontal } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
-export function Markdown({ content, role }: { content: string; role: string }) {
+export function Markdown({
+  content,
+  role,
+  onLoading,
+}: {
+  content: string;
+  role: string;
+  onLoading?: boolean;
+}) {
   const [copied, handleCopy] = useCopy(content);
 
   return (
@@ -43,22 +51,14 @@ export function Markdown({ content, role }: { content: string; role: string }) {
         {content}
       </ReactMarkdown>
 
-      {role === "assistant" && (
+      {role === "assistant" && !onLoading && (
         <div className="flex gap-2.5">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button onClick={handleCopy} className="transition">
-                {copied ? <Check size={16} /> : <Copy size={16} />}
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>{copied ? "Copied" : "Copy"}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <MoreHorizontal size={16} />
-            </TooltipTrigger>
-            <TooltipContent>More</TooltipContent>
-          </Tooltip>
+          <button onClick={handleCopy} className="transition">
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+          </button>
+          <button>
+            <MoreHorizontal size={16} />
+          </button>
         </div>
       )}
     </>
