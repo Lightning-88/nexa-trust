@@ -1,28 +1,27 @@
-import { AppHeader } from "@/components/main/app-header";
-import { AppSidebar } from "@/components/main/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { checkSessionServer } from "@/feature/auth/functions";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AppHeader } from '@/components/main/app-header'
+import { AppSidebar } from '@/components/main/app-sidebar'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/(main)")({
+export const Route = createFileRoute('/(main)')({
   component: MainLayout,
-  loader: async () => {
-    const session = await checkSessionServer();
-    if (!session) throw redirect({ to: "/login" });
+  beforeLoad: ({ context: { session } }) => {
+    if (!session) throw redirect({ to: '/login' })
 
-    return session;
+    return session
   },
-});
+  loader: ({ context: { user } }) => user,
+})
 
 function MainLayout() {
-  const { user } = Route.useLoaderData();
+  const user = Route.useLoaderData()
 
   return (
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 16)",
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 16)',
         } as React.CSSProperties
       }
     >
@@ -35,5 +34,5 @@ function MainLayout() {
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }

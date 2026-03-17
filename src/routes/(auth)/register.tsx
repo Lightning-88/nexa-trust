@@ -1,37 +1,37 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { authClient } from "@/lib/auth/auth-client";
-import { registerUserSchema, type registerUserType } from "@/types/users";
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm, type SubmitHandler } from 'react-hook-form'
+import { authClient } from '@/lib/auth/auth-client'
+import { registerUserSchema, type registerUserType } from '@/types/users'
 
-export const Route = createFileRoute("/(auth)/register/")({
+export const Route = createFileRoute('/(auth)/register')({
   component: RegisterPage,
-});
+})
 
-export default function RegisterPage() {
+function RegisterPage() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<registerUserType>({
     resolver: zodResolver(registerUserSchema),
-  });
+  })
 
   const onSubmit: SubmitHandler<registerUserType> = async ({
     name,
@@ -42,11 +42,11 @@ export default function RegisterPage() {
       name,
       email,
       password,
-      callbackURL: "/login",
-    });
+      callbackURL: '/login',
+    })
 
-    if (error) alert(error.message);
-  };
+    if (error) alert(error.message)
+  }
 
   return (
     <Card className="w-full max-w-100 shadow-md py-8 px-4 mx-4 rounded-md">
@@ -63,8 +63,9 @@ export default function RegisterPage() {
               <Input
                 type="text"
                 id="name"
-                {...register("name")}
+                {...register('name')}
                 placeholder="Full name"
+                className="py-4 px-3"
               />
               {errors.name && (
                 <FieldError errors={[{ message: errors.name.message }]} />
@@ -75,8 +76,9 @@ export default function RegisterPage() {
               <Input
                 type="email"
                 id="email"
-                {...register("email")}
+                {...register('email')}
                 placeholder="Email"
+                className="py-4 px-3"
               />
               {errors.email && (
                 <FieldError errors={[{ message: errors.email.message }]} />
@@ -87,8 +89,9 @@ export default function RegisterPage() {
               <Input
                 type="password"
                 id="password"
-                {...register("password")}
+                {...register('password')}
                 placeholder="Password"
+                className="py-4 px-3"
               />
               {errors.password && (
                 <FieldError errors={[{ message: errors.password.message }]} />
@@ -100,17 +103,25 @@ export default function RegisterPage() {
           </FieldGroup>
         </CardContent>
         <CardFooter className="flex-col gap-2 mt-4">
-          <Button disabled={isSubmitting} className="w-full" type="submit">
+          <Button
+            disabled={isSubmitting}
+            className="w-full"
+            type="submit"
+            size="lg"
+          >
             Register
           </Button>
           <span className="mt-4">
             Already have account?
-            <Link to="/login" className="text-blue-700 ml-0.5">
+            <Link
+              to="/login"
+              className="text-blue-700 ml-0.5 dark:text-blue-400"
+            >
               Login
             </Link>
           </span>
         </CardFooter>
       </form>
     </Card>
-  );
+  )
 }

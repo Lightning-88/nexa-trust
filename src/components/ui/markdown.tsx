@@ -1,20 +1,17 @@
-import { Children, isValidElement, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
-import { Copy, Check, MoreHorizontal } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { Children, isValidElement, memo, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
+import { Copy, Check, MoreHorizontal } from 'lucide-react'
 
-export function Markdown({
-  content,
-  role,
-  onLoading,
-}: {
-  content: string;
-  role: string;
-  onLoading?: boolean;
-}) {
-  const [copied, handleCopy] = useCopy(content);
+type MarkdownProps = {
+  content: string
+  role: string
+  onLoading?: boolean
+}
+
+function MarkdownRaw({ content, role, onLoading }: MarkdownProps) {
+  const [copied, handleCopy] = useCopy(content)
 
   return (
     <>
@@ -23,19 +20,21 @@ export function Markdown({
         rehypePlugins={[rehypeHighlight]}
         components={{
           code({ className, children, ...props }) {
-            const isBlock = Boolean(className);
+            const isBlock = Boolean(className)
 
-            const codeString = getTextFromChildren(children).replace(/\n$/, "");
+            const codeString = getTextFromChildren(children).replace(/\n$/, '')
 
             if (!isBlock) {
               return (
                 <code className="px-2 rounded text-sm" {...props}>
                   {children}
                 </code>
-              );
+              )
             }
 
-            const language = className?.replace("language-", "") || "text";
+            const language =
+              className?.replace('language-', '').split(/\s/g).reverse()[0] ??
+              'text'
 
             return (
               <CodeBlock
@@ -44,14 +43,14 @@ export function Markdown({
                 className={className}
                 role={role}
               />
-            );
+            )
           },
         }}
       >
         {content}
       </ReactMarkdown>
 
-      {role === "assistant" && !onLoading && (
+      {role === 'assistant' && !onLoading && (
         <div className="flex gap-2.5">
           <button onClick={handleCopy} className="transition">
             {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -62,7 +61,7 @@ export function Markdown({
         </div>
       )}
     </>
-  );
+  )
 }
 
 function CodeBlock({
@@ -71,16 +70,16 @@ function CodeBlock({
   className,
   role,
 }: {
-  code: string;
-  language: string;
-  className?: string;
-  role: string;
+  code: string
+  language: string
+  className?: string
+  role: string
 }) {
-  const [copied, handleCopy] = useCopy(code);
+  const [copied, handleCopy] = useCopy(code)
 
   return (
     <div
-      className={`rounded-xl overflow-hidden my-4 ${role === "assistant" && "border"}`}
+      className={`rounded-xl overflow-hidden my-4 ${role === 'assistant' && 'border'}`}
     >
       <div className="flex items-center justify-between px-4 py-2 text-xs">
         <span className="uppercase tracking-wide">{language}</span>
@@ -90,7 +89,7 @@ function CodeBlock({
           className="flex items-center gap-1 transition"
         >
           {copied ? <Check size={16} /> : <Copy size={16} />}
-          <span>{copied ? "Copied" : "Copy"}</span>
+          <span>{copied ? 'Copied' : 'Copy'}</span>
         </button>
       </div>
 
@@ -98,32 +97,36 @@ function CodeBlock({
         <code className={className}>{code}</code>
       </pre>
     </div>
-  );
+  )
 }
 
 function getTextFromChildren(children: React.ReactNode): string {
   return Children.toArray(children)
     .map((child) => {
-      if (typeof child === "string") return child;
-      if (typeof child === "number") return String(child);
+      if (typeof child === 'string') return child
+      if (typeof child === 'number') return String(child)
 
       if (isValidElement<{ children?: React.ReactNode }>(child)) {
-        return getTextFromChildren(child.props.children);
+        return getTextFromChildren(child.props.children)
       }
 
-      return "";
+      return ''
     })
-    .join("");
+    .join('')
 }
 
 function useCopy(text: string) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
-  return [copied, handleCopy] as const;
+  return [copied, handleCopy] as const
 }
+
+export const Markdown = memo(({ content, role, onLoading }: MarkdownProps) => (
+  <MarkdownRaw content={content} role={role} onLoading={onLoading} />
+))

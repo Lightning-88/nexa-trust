@@ -13,12 +13,12 @@ import { Route as miscRouteRouteImport } from './routes/(misc)/route'
 import { Route as mainRouteRouteImport } from './routes/(main)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as miscSettingIndexRouteImport } from './routes/(misc)/setting/index'
-import { Route as mainDashboardIndexRouteImport } from './routes/(main)/dashboard/index'
-import { Route as authRegisterIndexRouteImport } from './routes/(auth)/register/index'
-import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as miscSettingRouteImport } from './routes/(misc)/setting'
+import { Route as mainDashboardRouteImport } from './routes/(main)/dashboard'
+import { Route as authRegisterRouteImport } from './routes/(auth)/register'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as mainCChatIdRouteImport } from './routes/(main)/c/$chatId'
+import { Route as mainCChatIdRouteImport } from './routes/(main)/c.$chatId'
 import { Route as ApiAiMessageIndexRouteImport } from './routes/api/ai/message/index'
 import { Route as ApiV1AiMessageIndexRouteImport } from './routes/api/v1/ai/message/index'
 
@@ -39,24 +39,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const miscSettingIndexRoute = miscSettingIndexRouteImport.update({
-  id: '/setting/',
-  path: '/setting/',
+const miscSettingRoute = miscSettingRouteImport.update({
+  id: '/setting',
+  path: '/setting',
   getParentRoute: () => miscRouteRoute,
 } as any)
-const mainDashboardIndexRoute = mainDashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
+const mainDashboardRoute = mainDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => mainRouteRoute,
 } as any)
-const authRegisterIndexRoute = authRegisterIndexRouteImport.update({
-  id: '/register/',
-  path: '/register/',
+const authRegisterRoute = authRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => authRouteRoute,
 } as any)
-const authLoginIndexRoute = authLoginIndexRouteImport.update({
-  id: '/login/',
-  path: '/login/',
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => authRouteRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -82,23 +82,23 @@ const ApiV1AiMessageIndexRoute = ApiV1AiMessageIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof authLoginRoute
+  '/register': typeof authRegisterRoute
+  '/dashboard': typeof mainDashboardRoute
+  '/setting': typeof miscSettingRoute
   '/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/login/': typeof authLoginIndexRoute
-  '/register/': typeof authRegisterIndexRoute
-  '/dashboard/': typeof mainDashboardIndexRoute
-  '/setting/': typeof miscSettingIndexRoute
   '/api/ai/message/': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message/': typeof ApiV1AiMessageIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof authLoginRoute
+  '/register': typeof authRegisterRoute
+  '/dashboard': typeof mainDashboardRoute
+  '/setting': typeof miscSettingRoute
   '/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/login': typeof authLoginIndexRoute
-  '/register': typeof authRegisterIndexRoute
-  '/dashboard': typeof mainDashboardIndexRoute
-  '/setting': typeof miscSettingIndexRoute
   '/api/ai/message': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message': typeof ApiV1AiMessageIndexRoute
 }
@@ -108,12 +108,12 @@ export interface FileRoutesById {
   '/(auth)': typeof authRouteRouteWithChildren
   '/(main)': typeof mainRouteRouteWithChildren
   '/(misc)': typeof miscRouteRouteWithChildren
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/register': typeof authRegisterRoute
+  '/(main)/dashboard': typeof mainDashboardRoute
+  '/(misc)/setting': typeof miscSettingRoute
   '/(main)/c/$chatId': typeof mainCChatIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/(auth)/login/': typeof authLoginIndexRoute
-  '/(auth)/register/': typeof authRegisterIndexRoute
-  '/(main)/dashboard/': typeof mainDashboardIndexRoute
-  '/(misc)/setting/': typeof miscSettingIndexRoute
   '/api/ai/message/': typeof ApiAiMessageIndexRoute
   '/api/v1/ai/message/': typeof ApiV1AiMessageIndexRoute
 }
@@ -121,23 +121,23 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard'
+    | '/setting'
     | '/c/$chatId'
     | '/api/auth/$'
-    | '/login/'
-    | '/register/'
-    | '/dashboard/'
-    | '/setting/'
     | '/api/ai/message/'
     | '/api/v1/ai/message/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/c/$chatId'
-    | '/api/auth/$'
     | '/login'
     | '/register'
     | '/dashboard'
     | '/setting'
+    | '/c/$chatId'
+    | '/api/auth/$'
     | '/api/ai/message'
     | '/api/v1/ai/message'
   id:
@@ -146,12 +146,12 @@ export interface FileRouteTypes {
     | '/(auth)'
     | '/(main)'
     | '/(misc)'
+    | '/(auth)/login'
+    | '/(auth)/register'
+    | '/(main)/dashboard'
+    | '/(misc)/setting'
     | '/(main)/c/$chatId'
     | '/api/auth/$'
-    | '/(auth)/login/'
-    | '/(auth)/register/'
-    | '/(main)/dashboard/'
-    | '/(misc)/setting/'
     | '/api/ai/message/'
     | '/api/v1/ai/message/'
   fileRoutesById: FileRoutesById
@@ -196,32 +196,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(misc)/setting/': {
-      id: '/(misc)/setting/'
+    '/(misc)/setting': {
+      id: '/(misc)/setting'
       path: '/setting'
-      fullPath: '/setting/'
-      preLoaderRoute: typeof miscSettingIndexRouteImport
+      fullPath: '/setting'
+      preLoaderRoute: typeof miscSettingRouteImport
       parentRoute: typeof miscRouteRoute
     }
-    '/(main)/dashboard/': {
-      id: '/(main)/dashboard/'
+    '/(main)/dashboard': {
+      id: '/(main)/dashboard'
       path: '/dashboard'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof mainDashboardIndexRouteImport
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof mainDashboardRouteImport
       parentRoute: typeof mainRouteRoute
     }
-    '/(auth)/register/': {
-      id: '/(auth)/register/'
+    '/(auth)/register': {
+      id: '/(auth)/register'
       path: '/register'
-      fullPath: '/register/'
-      preLoaderRoute: typeof authRegisterIndexRouteImport
+      fullPath: '/register'
+      preLoaderRoute: typeof authRegisterRouteImport
       parentRoute: typeof authRouteRoute
     }
-    '/(auth)/login/': {
-      id: '/(auth)/login/'
+    '/(auth)/login': {
+      id: '/(auth)/login'
       path: '/login'
-      fullPath: '/login/'
-      preLoaderRoute: typeof authLoginIndexRouteImport
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
     }
     '/api/auth/$': {
@@ -256,13 +256,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface authRouteRouteChildren {
-  authLoginIndexRoute: typeof authLoginIndexRoute
-  authRegisterIndexRoute: typeof authRegisterIndexRoute
+  authLoginRoute: typeof authLoginRoute
+  authRegisterRoute: typeof authRegisterRoute
 }
 
 const authRouteRouteChildren: authRouteRouteChildren = {
-  authLoginIndexRoute: authLoginIndexRoute,
-  authRegisterIndexRoute: authRegisterIndexRoute,
+  authLoginRoute: authLoginRoute,
+  authRegisterRoute: authRegisterRoute,
 }
 
 const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
@@ -270,13 +270,13 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 )
 
 interface mainRouteRouteChildren {
+  mainDashboardRoute: typeof mainDashboardRoute
   mainCChatIdRoute: typeof mainCChatIdRoute
-  mainDashboardIndexRoute: typeof mainDashboardIndexRoute
 }
 
 const mainRouteRouteChildren: mainRouteRouteChildren = {
+  mainDashboardRoute: mainDashboardRoute,
   mainCChatIdRoute: mainCChatIdRoute,
-  mainDashboardIndexRoute: mainDashboardIndexRoute,
 }
 
 const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
@@ -284,11 +284,11 @@ const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
 )
 
 interface miscRouteRouteChildren {
-  miscSettingIndexRoute: typeof miscSettingIndexRoute
+  miscSettingRoute: typeof miscSettingRoute
 }
 
 const miscRouteRouteChildren: miscRouteRouteChildren = {
-  miscSettingIndexRoute: miscSettingIndexRoute,
+  miscSettingRoute: miscSettingRoute,
 }
 
 const miscRouteRouteWithChildren = miscRouteRoute._addFileChildren(
