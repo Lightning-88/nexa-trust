@@ -1,6 +1,7 @@
+import { genRandomID } from '@/routes/(main)/c.$chatId'
 import type { Message } from '@/types/messages'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 export function useMessageCache(chatId: string) {
   const queryClient = useQueryClient()
@@ -84,4 +85,72 @@ export function useSendMessageToAI() {
   )
 
   return { isLoading, streamingMessage, startAIMessage }
+}
+
+export function useSubmitContent({
+  chatId,
+  messages,
+  handler,
+}: {
+  chatId: string
+  messages: Message[]
+  handler: ({
+    chatId,
+    userPrompt,
+    isFirst,
+    onSuccess,
+    onError,
+  }: {
+    chatId: string
+    userPrompt: string
+    isFirst: boolean
+    onSuccess?: ((content: string) => void) | undefined
+    onError?: (() => void) | undefined
+  }) => Promise<void>
+}) {
+  const promptRef = useRef<HTMLTextAreaElement>(null)
+
+  const { append } = useMessageCache(chatId)
+  const queryClient = useQueryClient()
+
+  const handleSubmitPrompt = useCallback(
+    async (e: React.SubmitEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      if (!promptRef.current) return
+
+      const userPrompt = promptRef.current.value
+
+      promptRef.current.value = ''
+
+      append({
+        id: genRandomID(),
+        content: userPrompt,
+        role: 'user',
+        createdAt: new Date(),
+        chatId,
+      })
+
+      await handler({
+        chatId,
+        userPrompt,
+        isFirst: messages.length === 1,
+        onSuccess: async (content) => {
+          append({
+            id: genRandomID(),
+            content: content,
+            role: 'assistant',
+            createdAt: new Date(),
+            chatId,
+          })
+
+          await queryClient.invalidateQueries({
+            queryKey: ['messages', chatId],
+          })
+        },
+      })
+    },
+    [messages],
+  )
+
+  return { promptRef, handleSubmitPrompt }
 }

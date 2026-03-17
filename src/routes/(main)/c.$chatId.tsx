@@ -1,11 +1,15 @@
 import { PromptInput } from '@/components/chat/prompt-input'
 import { Markdown } from '@/components/ui/markdown'
 import { getMessagesServer } from '@/feature/message/functions'
-import { useMessageCache, useSendMessageToAI } from '@/feature/message/hooks'
+import {
+  useMessageCache,
+  useSendMessageToAI,
+  useSubmitContent,
+} from '@/feature/message/hooks'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { LoaderPinwheel } from 'lucide-react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 const getMessageQueryOptions = (chatId: string) =>
   queryOptions({
@@ -24,79 +28,50 @@ export const Route = createFileRoute('/(main)/c/$chatId')({
 function ChatPage() {
   const { chatId } = Route.useParams()
   const { queryClient } = Route.useRouteContext()
-  const promptRef = useRef<HTMLTextAreaElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const runOnce = useRef(true)
 
   const { isLoading, startAIMessage, streamingMessage } = useSendMessageToAI()
   const { append } = useMessageCache(chatId)
 
   const { data: messages } = useSuspenseQuery(getMessageQueryOptions(chatId))
 
+  const { handleSubmitPrompt, promptRef } = useSubmitContent({
+    chatId,
+    messages,
+    handler: startAIMessage,
+  })
+
   useEffect(() => {
-    async function generateFirstAIResponse() {
-      if (messages.length === 1 && messages[0].role === 'user') {
-        await startAIMessage({
-          chatId,
-          isFirst: true,
-          userPrompt: messages[0].content,
-          onSuccess: async (content) => {
-            append({
-              id: genRandomID(),
-              content: content,
-              role: 'assistant',
-              createdAt: new Date(),
-              chatId,
-            })
-
-            await queryClient.invalidateQueries({
-              queryKey: ['messages', chatId],
-            })
-          },
-        })
-      }
-    }
-
-    generateFirstAIResponse()
-  }, [chatId])
-
-  const handleSubmitPrompt = useCallback(
-    async (e: React.SubmitEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      if (!promptRef.current) return
-
-      const userPrompt = promptRef.current.value
-
-      promptRef.current.value = ''
-
-      append({
-        id: genRandomID(),
-        content: userPrompt,
-        role: 'user',
-        createdAt: new Date(),
-        chatId,
-      })
-
-      await startAIMessage({
-        chatId,
-        userPrompt,
-        isFirst: messages.length === 1,
-        onSuccess: async (content) => {
-          append({
-            id: genRandomID(),
-            content: content,
-            role: 'assistant',
-            createdAt: new Date(),
+    if (runOnce.current) {
+      runOnce.current = false
+      async function generateFirstAIResponse() {
+        if (messages.length === 1 && messages[0].role === 'user') {
+          await startAIMessage({
             chatId,
-          })
+            isFirst: true,
+            userPrompt: messages[0].content,
+            onSuccess: async (content) => {
+              append({
+                id: genRandomID(),
+                content: content,
+                role: 'assistant',
+                createdAt: new Date(),
+                chatId,
+              })
 
-          await queryClient.invalidateQueries({
-            queryKey: ['messages', chatId],
+              await queryClient.invalidateQueries({
+                queryKey: ['messages', chatId],
+              })
+            },
           })
-        },
-      })
-    },
-    [promptRef.current, messages, ],
-  )
+        }
+      }
+
+      generateFirstAIResponse()
+    }
+  }, [messages])
 
   useEffect(() => {
     const element = containerRef.current
@@ -150,6 +125,6 @@ function ChatPage() {
   )
 }
 
-function genRandomID() {
+export function genRandomID() {
   return String(Math.floor(Math.random() * 1_000_000_000_000))
 }
