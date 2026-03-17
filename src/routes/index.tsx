@@ -1,44 +1,51 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { checkSessionServer } from "@/feature/auth/functions";
-import { createFileRoute, Link } from "@tanstack/react-router";
+} from '@/components/ui/card'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: MainPage,
-  loader: async () => {
-    return await checkSessionServer();
-  },
-});
+  loader: ({ context: { session } }) => session,
+})
 
 function MainPage() {
-  const session = Route.useLoaderData();
+  const session = Route.useLoaderData()
 
   return (
     <main className="min-h-screen">
       <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto shadow-sm sticky top-0 left-0 right-0 backdrop-blur-lg">
-        <h1 className="text-2xl font-bold">Nexa Trust</h1>
+        <h1 className="text-lg font-bold">Nexa Trust</h1>
 
         <div className="flex gap-3">
           {!session ? (
             <>
-              <Button variant="ghost" asChild>
-                <Link to="/login">Login</Link>
-              </Button>
+              <Button
+                className="p-4"
+                variant="ghost"
+                size="lg"
+                nativeButton={false}
+                render={<Link to="/login">Login</Link>}
+              />
 
-              <Button asChild>
-                <Link to="/register">Get Started</Link>
-              </Button>
+              <Button
+                className="p-4"
+                nativeButton={false}
+                size="lg"
+                render={<Link to="/register">Get Started</Link>}
+              />
             </>
           ) : (
-            <Button asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
+            <Button
+              className="p-4"
+              nativeButton={false}
+              size="lg"
+              render={<Link to="/dashboard">Dashboard</Link>}
+            />
           )}
         </div>
       </nav>
@@ -49,7 +56,7 @@ function MainPage() {
           Untuk Bisnis Modern
         </h2>
 
-        <p className="max-w-2xl mb-8 text-lg">
+        <p className="max-w-2xl mb-8">
           Nexa Trust membantu Anda membangun komunikasi otomatis yang aman,
           cepat, dan terpercaya dengan teknologi AI.
         </p>
@@ -57,18 +64,25 @@ function MainPage() {
         <div className="flex gap-4">
           {!session ? (
             <>
-              <Button size="lg" asChild>
-                <Link to="/register">Mulai Gratis</Link>
-              </Button>
+              <Button
+                nativeButton={false}
+                size="lg"
+                render={<Link to="/register">Mulai Gratis</Link>}
+              />
 
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/login">Masuk</Link>
-              </Button>
+              <Button
+                nativeButton={false}
+                size="lg"
+                variant="outline"
+                render={<Link to="/login">Masuk</Link>}
+              />
             </>
           ) : (
-            <Button size="lg" asChild>
-              <Link to="/dashboard">Buka Dashboard</Link>
-            </Button>
+            <Button
+              nativeButton={false}
+              size="lg"
+              render={<Link to="/dashboard">Buka Dashboard</Link>}
+            />
           )}
         </div>
       </section>
@@ -81,7 +95,7 @@ function MainPage() {
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">AI Pintar</CardTitle>
+              <CardTitle className="text-lg font-bold">AI Pintar</CardTitle>
               <CardDescription>Respon cepat & akurat</CardDescription>
             </CardHeader>
 
@@ -92,9 +106,7 @@ function MainPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">
-                Keamanan Data
-              </CardTitle>
+              <CardTitle className="text-lg font-bold">Keamanan Data</CardTitle>
               <CardDescription>Privasi terjamin</CardDescription>
             </CardHeader>
 
@@ -105,7 +117,7 @@ function MainPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-lg font-bold">
                 Mudah Digunakan
               </CardTitle>
               <CardDescription>Tanpa ribet</CardDescription>
@@ -127,16 +139,18 @@ function MainPage() {
           <p>Tingkatkan layanan pelanggan dengan AI chatbot terpercaya.</p>
 
           {!session && (
-            <Button size="lg" asChild>
-              <Link to="/register">Daftar Sekarang</Link>
-            </Button>
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={<Link to="/register">Daftar Sekarang</Link>}
+            />
           )}
         </div>
       </section>
 
-      <footer className="border-t py-6 text-center text-slate-500">
+      <footer className="border-t py-6 text-center text-slate-500 text-sm">
         © {new Date().getFullYear()} Nexa Trust. All rights reserved.
       </footer>
     </main>
-  );
+  )
 }
