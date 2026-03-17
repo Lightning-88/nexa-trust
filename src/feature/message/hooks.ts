@@ -116,7 +116,7 @@ export function useSubmitContent({
   const handleSubmitPrompt = useCallback(
     async (e: React.SubmitEvent<HTMLFormElement>) => {
       e.preventDefault()
-      if (!promptRef.current) return
+      if (!promptRef.current?.value) return
 
       const userPrompt = promptRef.current.value
 

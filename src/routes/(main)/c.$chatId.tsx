@@ -96,7 +96,7 @@ function ChatPage() {
 
         {isLoading && !streamingMessage && (
           <div>
-            <LoaderPinwheel className="animate-ping" size={16} />
+            <Loader />
           </div>
         )}
 
@@ -109,7 +109,7 @@ function ChatPage() {
             />
 
             <div>
-              <LoaderPinwheel className="animate-ping" size={16} />
+              <Loader />
             </div>
           </div>
         )}
@@ -127,4 +127,20 @@ function ChatPage() {
 
 export function genRandomID() {
   return String(Math.floor(Math.random() * 1_000_000_000_000))
+}
+
+function Loader() {
+  return (
+    <div className="relative h-6 w-6 flex items-center justify-center animate-pulse">
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-orange-400 via-pink-500 to-rose-600 opacity-70 blur-md animate-[spin_4s_linear_infinite]" />
+
+      <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-tr from-orange-300 to-rose-500 bg-clip-border animate-[spin_2.5s_linear_infinite]" />
+
+      <div className="absolute inset-1 rounded-xl border border-white/20 animate-[spin_3s_linear_infinite_reverse]" />
+
+      <div className="absolute h-4 w-4 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.9)] animate-pulse" />
+
+      <div className="absolute inset-2 rounded-xl bg-white/10 animate-[ping_2s_ease-in-out_infinite]" />
+    </div>
+  )
 }
