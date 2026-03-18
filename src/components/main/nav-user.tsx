@@ -70,7 +70,7 @@ export function NavUser({
             }
           />
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-60 rounded-lg"
+            className="max-w-[90vw] sm:max-w-none rounded-xl"
             align="center"
             side="top"
             sideOffset={4}

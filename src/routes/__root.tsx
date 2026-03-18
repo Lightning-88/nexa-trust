@@ -9,7 +9,6 @@ import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import appCss from '../styles.css?url'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { SidebarProvider } from '@/components/ui/sidebar'
 import { queryClient } from '@/router'
 import { checkSessionServer } from '@/feature/auth/functions'
 
@@ -54,9 +53,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="antialiased">
         <QueryClientProvider client={queryClient}>
-          <SidebarProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </SidebarProvider>
+          <TooltipProvider>{children}</TooltipProvider>
         </QueryClientProvider>
 
         <TanStackDevtools

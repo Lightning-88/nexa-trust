@@ -25,7 +25,7 @@ function MainLayout() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="sidebar" user={user} className="border-r p-0" />
+      <AppSidebar variant="sidebar" user={user} />
 
       <div className="w-full h-dvh flex flex-col overflow-hidden">
         <AppHeader className="sticky top-0" />

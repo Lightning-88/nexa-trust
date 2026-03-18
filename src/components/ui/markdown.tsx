@@ -42,7 +42,9 @@ function MarkdownRaw({ content, role, onLoading }: MarkdownProps) {
                 language={language}
                 className={className}
                 role={role}
-              />
+              >
+                {children}
+              </CodeBlock>
             )
           },
         }}
@@ -65,11 +67,13 @@ function MarkdownRaw({ content, role, onLoading }: MarkdownProps) {
 }
 
 function CodeBlock({
+  children,
   code,
   language,
   className,
   role,
 }: {
+  children: React.ReactNode
   code: string
   language: string
   className?: string
@@ -93,8 +97,8 @@ function CodeBlock({
         </button>
       </div>
 
-      <pre className="p-4 overflow-x-auto text-sm">
-        <code className={className}>{code}</code>
+      <pre className="p-4 pt-0 overflow-x-auto text-sm">
+        <code className={`${className} rounded-xl`}>{children}</code>
       </pre>
     </div>
   )

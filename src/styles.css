@@ -127,3 +127,19 @@
     @apply font-sans;
     }
 }
+
+[data-slot="sidebar"][data-mobile="true"] {
+  width: min(var(--sidebar-width), calc(100vw - 3rem));
+  max-width: 100vw !important;
+}
+
+@import 'highlight.js/styles/atom-one-light.min.css';
+
+.hljs {
+  background: inherit;
+  color: inherit;
+}
+
+.dark .hljs {
+  background: #282c34;
+}
