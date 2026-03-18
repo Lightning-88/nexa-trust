@@ -85,7 +85,7 @@ function CodeBlock({
     <div
       className={`rounded-xl overflow-hidden my-4 ${role === 'assistant' && 'border'}`}
     >
-      <div className="flex items-center justify-between px-4 py-2 text-xs">
+      <div className="flex items-center justify-between p-4 text-xs">
         <span className="uppercase tracking-wide">{language}</span>
 
         <button
