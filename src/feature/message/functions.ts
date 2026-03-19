@@ -1,24 +1,24 @@
-import { createServerFn } from "@tanstack/react-start";
-import { authMiddleware } from "../auth/functions";
-import { db } from "@/lib/db/prisma";
-import z from "zod";
-import { env } from "@/lib/utils/env";
+import { createServerFn } from '@tanstack/react-start'
+import { authMiddleware } from '../auth/functions'
+import { db } from '@/lib/db/prisma'
+import z from 'zod'
+import { env } from '@/lib/utils/env'
 
-export const getMessagesServer = createServerFn({ method: "GET" })
+export const getMessagesServer = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ chatId: z.string() }))
   .middleware([authMiddleware])
   .handler(async ({ data: { chatId } }) => {
     return await db.message.findMany({
       orderBy: {
-        createdAt: "asc",
+        createdAt: 'asc',
       },
       where: {
         chatId,
       },
-    });
-  });
+    })
+  })
 
-export const addMessagesServer = createServerFn({ method: "POST" })
+export const addMessagesStreamServer = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       chatId: z.string(),
@@ -32,53 +32,71 @@ export const addMessagesServer = createServerFn({ method: "POST" })
       await db.message.create({
         data: {
           chatId,
-          role: "user",
+          role: 'user',
           content,
-          createdAt: new Date(),
         },
-      });
+      })
 
     const history = await db.message.findMany({
       where: {
         chatId,
       },
       orderBy: {
-        createdAt: "asc",
+        createdAt: 'asc',
       },
-    });
+    })
 
     const contents = history.map((m) => ({
       role: m.role,
       content: m.content,
-    }));
+    }))
 
-    const apiKey = env().BYTEZ_API_KEY;
+    const apiKey = env().BYTEZ_API_KEY
     const response = await fetch(
-      "https://api.bytez.com/models/v2/openai/gpt-4o",
+      'https://api.bytez.com/models/v2/openai/gpt-4o',
       {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: apiKey as string,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           messages: contents,
           max_tokens: 200,
         }),
       },
-    );
-    const result = await response.json();
+    )
+    const result = await response.json()
 
-    if (!response.ok) return null;
+    if (!response.ok)
+      return {
+        success: false,
+        message: 'AI error',
+        errors: result,
+      }
 
     const responseFromAI = await db.message.create({
       data: {
         content: result.output.content,
         chatId,
-        role: "assistant",
+        role: 'assistant',
         createdAt: new Date(),
       },
-    });
+    })
 
-    return responseFromAI;
-  });
+    const encoder = new TextEncoder()
+    const words = responseFromAI.content.split(' ')
+
+    const streamText = new ReadableStream<Uint8Array<ArrayBuffer>>({
+      start: async (controller) => {
+        for (const word of words) {
+          controller.enqueue(encoder.encode(word + ' '))
+          await new Promise((r) => setTimeout(r, 40))
+        }
+
+        controller.close()
+      },
+    })
+
+    return streamText
+  })

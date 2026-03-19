@@ -117,10 +117,15 @@ function SettingPage() {
             <CardContent className="p-0">
               {active === 'general' && (
                 <div className="space-y-2">
-                  <h2 className="text-lg font-semibold">General</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Manage your general application settings.
-                  </p>
+                  <div className="flex justify-between border-b border-muted-foreground/30 pb-4">
+                    <p className="text-sm">Appearance</p>
+
+                    <select className="bg-primary text-secondary rounded-sm">
+                      <option value="auto">System</option>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                    </select>
+                  </div>
                 </div>
               )}
 
