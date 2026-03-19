@@ -8,7 +8,6 @@ import {
 } from '@/feature/message/hooks'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { LoaderPinwheel } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 
 const getMessageQueryOptions = (chatId: string) =>
@@ -20,6 +19,7 @@ const getMessageQueryOptions = (chatId: string) =>
 export const Route = createFileRoute('/(main)/c/$chatId')({
   component: ChatPage,
   pendingComponent: () => <div className="p-4">Loading...</div>,
+  notFoundComponent: () => <div className="p-4">Chat Not Found</div>,
   loader: ({ context, params: { chatId } }) => {
     context.queryClient.ensureQueryData(getMessageQueryOptions(chatId))
   },
@@ -84,7 +84,10 @@ function ChatPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-auto p-4 space-y-4" ref={containerRef}>
+      <div
+        className="flex-1 overflow-auto px-4 py-4 sm:px-12 md:px-24 space-y-4"
+        ref={containerRef}
+      >
         {messages.map((m) => (
           <div
             key={m.id}
@@ -115,7 +118,10 @@ function ChatPage() {
         )}
       </div>
 
-      <form className="sticky p-4" onSubmit={handleSubmitPrompt}>
+      <form
+        className="sticky px-4 py-4 sm:px-12 md:px-24"
+        onSubmit={handleSubmitPrompt}
+      >
         <PromptInput
           onLoading={isLoading || streamingMessage ? true : false}
           ref={promptRef}

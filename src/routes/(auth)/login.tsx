@@ -31,6 +31,8 @@ function LoginPage() {
   } = useForm<loginUserType>({
     resolver: zodResolver(loginUserSchema),
   })
+  const searchParams = new URLSearchParams(window.location.search)
+  const redirect = searchParams.get('continue')
 
   const onSubmit: SubmitHandler<loginUserType> = async ({
     email,
@@ -41,30 +43,33 @@ function LoginPage() {
       email,
       password,
       rememberMe,
-      callbackURL: '/dashboard',
     })
 
     if (error) alert(error.message)
+
+    if (data?.user) window.location.href = redirect ?? '/dashboard'
   }
 
   const handleSignInGoogle = async () => {
-    const data = await authClient.signIn.social({
+    const { data, error } = await authClient.signIn.social({
       provider: 'google',
-      callbackURL: '/dashboard',
-      newUserCallbackURL: '/dashboard',
+      disableRedirect: false,
     })
 
-    if (data.error) alert(data.error.message)
+    if (error) alert(error.message)
+
+    if (data?.redirect) window.location.href = redirect ?? '/dashboard'
   }
 
   const handleSignInGithub = async () => {
-    const data = await authClient.signIn.social({
+    const { data, error } = await authClient.signIn.social({
       provider: 'github',
-      callbackURL: '/dashboard',
-      newUserCallbackURL: '/dashboard',
+      disableRedirect: false,
     })
 
-    if (data.error) alert(data.error.message)
+    if (error) alert(error.message)
+
+    if (data?.redirect) window.location.href = redirect ?? '/dashboard'
   }
 
   return (

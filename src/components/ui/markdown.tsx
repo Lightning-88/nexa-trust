@@ -98,7 +98,9 @@ function CodeBlock({
       </div>
 
       <pre className="p-4 pt-0 overflow-x-auto text-sm">
-        <code className={`${className} rounded-xl`}>{children}</code>
+        <code className={`${className} rounded-xl border border-border`}>
+          {children}
+        </code>
       </pre>
     </div>
   )

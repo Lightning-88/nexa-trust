@@ -2,19 +2,22 @@ import { AppHeader } from '@/components/main/app-header'
 import { AppSidebar } from '@/components/main/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { getRequestUrl } from '@tanstack/react-start/server'
 
 export const Route = createFileRoute('/(main)')({
   component: MainLayout,
   beforeLoad: ({ context: { session } }) => {
-    if (!session) throw redirect({ to: '/login' })
+    const url = getRequestUrl()
+
+    if (!session)
+      throw redirect({ to: '/login', search: { continue: url.pathname } })
 
     return session
   },
-  loader: ({ context: { user } }) => user,
 })
 
 function MainLayout() {
-  const user = Route.useLoaderData()
+  const { user } = Route.useRouteContext()
 
   return (
     <SidebarProvider

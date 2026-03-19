@@ -42,10 +42,11 @@ function RegisterPage() {
       name,
       email,
       password,
-      callbackURL: '/login',
     })
 
     if (error) alert(error.message)
+
+    if (data?.user) window.location.href = '/login'
   }
 
   return (
