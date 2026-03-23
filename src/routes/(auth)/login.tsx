@@ -53,23 +53,21 @@ function LoginPage() {
   const handleSignInGoogle = async () => {
     const { data, error } = await authClient.signIn.social({
       provider: 'google',
-      disableRedirect: false,
     })
 
     if (error) alert(error.message)
 
-    if (data?.redirect) window.location.href = redirect ?? '/dashboard'
+    if (data) window.location.href = redirect ?? '/dashboard'
   }
 
   const handleSignInGithub = async () => {
     const { data, error } = await authClient.signIn.social({
       provider: 'github',
-      disableRedirect: false,
     })
 
     if (error) alert(error.message)
 
-    if (data?.redirect) window.location.href = redirect ?? '/dashboard'
+    if (data) window.location.href = redirect ?? '/dashboard'
   }
 
   return (
